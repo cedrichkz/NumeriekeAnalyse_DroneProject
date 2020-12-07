@@ -21,14 +21,14 @@ def channel2APDP(PUNT):
         for j in range(TONEN):
             frequentiekarakteristiek[i][j] = frequenties[j][PUNT][i]
     for k in range(METINGEN):
-        pdp[k] = abs(((fft.ifft(frequentiekarakteristiek[k])))) #frequentiekarakteristiek omzetten naar PDP
+        pdp[k] = abs(((fft.ifft([k])))) #frequentiekarakteristiek omzetten naar PDP
 
     for TOON in range(TONEN):
         som = 0
         for METING in range(METINGEN):
             som += pdp[METING][TOON]
         apdp[TOON] = 20*np.log10((som/METINGEN))       #APDP
-    if (0):
+    if(1):  #APDP te plotton op 1
         plt.plot(apdp)
         plt.show()
     return apdp
