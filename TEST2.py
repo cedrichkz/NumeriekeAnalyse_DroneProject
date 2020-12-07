@@ -11,7 +11,6 @@ from scipy import constants as cst
 def data_1_verwerken(file):
     mat = sc.loadmat(file)
     x = np.array(mat.get('H'))
-    #git change test
     return x
 
 def channel2APDP(PUNT):
@@ -22,14 +21,14 @@ def channel2APDP(PUNT):
         for j in range(TONEN):
             frequentiekarakteristiek[i][j] = frequenties[j][PUNT][i]
     for k in range(METINGEN):
-        pdp[k] = abs(fftp.fftshift((fft.ifft(frequentiekarakteristiek[k]))))
+        pdp[k] = abs(((fft.ifft(frequentiekarakteristiek[k])))) #frequentiekarakteristiek omzetten naar PDP
 
     for TOON in range(TONEN):
         som = 0
         for METING in range(METINGEN):
             som += pdp[METING][TOON]
-        apdp[TOON] = 20*np.log10((som/METINGEN))
-    if (PUNT==1):
+        apdp[TOON] = 20*np.log10((som/METINGEN))       #APDP
+    if (0):
         plt.plot(apdp)
         plt.show()
     return apdp
@@ -46,9 +45,9 @@ def APDP2delays(APDP):
     #T1 = np.argmax(APDP[lage_index:len(APDP)-10]) + i
     #print(T0,T1)
     #return T0*stapA, T1*stapA
-    peaks = sig.find_peaks(APDP, prominence=1)
+    peaks = sig.find_peaks(APDP, prominence=1) #functie om toppen te vinden
     print(peaks[0])
-    T0 = peaks[0][0]*stapA
+    T0 = peaks[0][0]*stapA                      #index vermenigvuldigen met stap
     if (len(peaks[0]) >1):
         T1 = peaks[0][1]*stapA
     else:
@@ -101,7 +100,7 @@ PUNTEN = len(frequenties[0])
 #print(PUNTEN, TONEN, METINGEN)
 #frequenties[TONEN][PUNTEN][METINGEN]
 
-stapA = 1/3/10**9*200/201
+stapA = 1/3/(10**9)*200/201
 stapB = 1/11/10**9*999/1000
 tau = delays_berekenen()
 
@@ -120,6 +119,7 @@ y_juist = y_waarden()
 
 
 plt.scatter(x_coordinaat, y_coordinaat)
+plt.scatter(x_juist, y_juist)
 
 
 
