@@ -13,14 +13,18 @@ def data_1_verwerken(file):
 def channel2APDP(array_frequenties, plotten = False):
     #venster over freq_kar
     inverse = np.fft.ifft(array_frequenties)    #neem inverse ft van frequentiekarakteristiek
+    n = len(array_frequenties)
     pdp = np.abs(inverse)**2
+    print(pdp)
 
     if(plotten):
+        #Inverse FT plotten
         plt.title("Inverse FT")
         plt.xlabel("tijd")
         plt.ylabel("Amplitude")
         plt.plot(inverse)
 
+        #PDP plotten
         plt.figure()
         plt.title("PDP")
         plt.xlabel("tijd")
