@@ -13,46 +13,57 @@ def data_1_verwerken(file):
     x = np.array(mat.get('H'))
     return x
 
-def channel2APDP(PUNT):
-    pdp = np.zeros((METINGEN, TONEN))
-    apdp = np.zeros((TONEN))
-    frequentiekarakteristiek = np.zeros((METINGEN, TONEN), dtype=complex)
-    for i in range(METINGEN):
-        for j in range(TONEN):
-            frequentiekarakteristiek[i][j] = frequenties[j][PUNT][i]
-    for k in range(METINGEN):
-        pdp[k] = abs(((fft.ifft([k])))) #frequentiekarakteristiek omzetten naar PDP
+#def channel2APDP(PUNT):
+   # pdp = np.zeros((METINGEN, TONEN))
+  #  apdp = np.zeros((TONEN))
+ #   frequentiekarakteristiek = np.zeros((METINGEN, TONEN), dtype=complex)
+#    for i in range(METINGEN):
+      #  for j in range(TONEN):
+     #       frequentiekarakteristiek[i][j] = frequenties[j][PUNT][i]
+    #for k in range(METINGEN):
+   #     pdp[k] = abs(np.real((fft.ifft(frequentiekarakteristiek[k])))) #frequentiekarakteristiek omzetten naar PDP
+  #      if (venster):
+ #           pdp[k] = pdp[k]*sig.gaussian(TONEN, 100)
+#    for TOON in range(TONEN):
+       # som = 0
+      #  for METING in range(METINGEN):
+     #       som += pdp[METING][TOON]
+    #    apdp[TOON] = 20*np.log10((som/METINGEN)*10**3)       #APDP
+   # if (0):
+  #      plt.plot(xas,apdp)
+ #       plt.show()
+#    return apdp
 
-    for TOON in range(TONEN):
-        som = 0
-        for METING in range(METINGEN):
-            som += pdp[METING][TOON]
-        apdp[TOON] = 20*np.log10((som/METINGEN))       #APDP
-    if(1):  #APDP te plotton op 1
+
+def powerdp(array_frequenties):
+    if (venster):
+        array_frequenties = array_frequenties * np.hanning(TONEN)  # windowing van frequentiekarakteristiek
+    inverse = np.fft.ifft(array_frequenties)  # neem inverse ft van frequentiekarakteristiek
+    pdp = np.sqrt((np.abs(inverse) ** 2) / TONEN)  # freq_kar omzetten in PDP (RMS)
+    return pdp
+
+def channel2APDP(PUNT):
+    freq_kar = np.zeros(TONEN, dtype=complex)
+    apdp = np.zeros(TONEN, dtype=complex)
+    for meting in range(METINGEN):
+        for toon in range(TONEN):
+            freq_kar[toon] = frequenties[toon][PUNT][meting]
+        pdp = 20 * np.log10(powerdp(freq_kar))
+        for i in range(TONEN):  #gemiddelde van pdp's berekenen
+            apdp[i] += pdp[i]
+    apdp /= METINGEN
+    if (PUNT == 0):
         plt.plot(apdp)
         plt.show()
     return apdp
 
-
 def APDP2delays(APDP):
-    #T0 = np.argmax(APDP)
-    #lage_index = 0
-    #for i in range(T0+1,len(APDP)-1):
-    #    if APDP[i]<APDP[i+1]:
-    #        lage_index = i
-    #        print(lage_index)
-    #        break
-    #T1 = np.argmax(APDP[lage_index:len(APDP)-10]) + i
-    #print(T0,T1)
-    #return T0*stapA, T1*stapA
-    peaks = sig.find_peaks(APDP, prominence=1) #functie om toppen te vinden
-    print(peaks[0])
-    T0 = peaks[0][0]*stapA                      #index vermenigvuldigen met stap
-    if (len(peaks[0]) >1):
-        T1 = peaks[0][1]*stapA
-    else:
-        T1 = (peaks[0][0] + 10) * stapA
-    return T0,T1
+    APDP[APDP<offset] = offset #-100 voor dataset 1 -120 voor dataset2
+    T = sig.argrelmax(APDP)
+    if (0):
+        plt.plot(APDP)
+        plt.show()
+    return T[0][0]*stap,T[0][1]*stap
 
 def delays_berekenen():
     delays = np.zeros((PUNTEN,2))
@@ -61,14 +72,15 @@ def delays_berekenen():
         delays[PUNT] = APDP2delays(APDP)
     return delays
 
-#def snelheid_berekenen(x, y, tau):
- #   return math.sqrt(x**2+y**2)/tau
-
 def calculate_location(tau0, tau1, v):
     y = ((tau1**2-tau0**2)*v**2)/4
     x = (tau0*v)**2-(y-1)**2
 
     return x,y
+
+
+def fout_berekenen():
+    pass
 
 
 def x_waarden():
@@ -91,17 +103,24 @@ def y_waarden():
 
 
 #Main
+venster = 1
 
+dataset = 1
 
-frequenties = data_1_verwerken('Dataset_1.mat')
-METINGEN = len(frequenties[0][0])
+if (dataset == 1):
+    frequenties = data_1_verwerken('Dataset_1.mat')
+    # stap = 1/2/(10**9)*200/201
+    stap = 1 / 3 / (10 ** 9) * 200 / 201
+    offset = -100
+else:
+    frequenties = data_1_verwerken('Dataset_2.mat')
+    stap = 1 / 11 / 10 ** 9 * 999 / 1000
+    offset = -120
+
 TONEN = len(frequenties)
 PUNTEN = len(frequenties[0])
-#print(PUNTEN, TONEN, METINGEN)
-#frequenties[TONEN][PUNTEN][METINGEN]
+METINGEN = len(frequenties[0][0])
 
-stapA = 1/3/(10**9)*200/201
-stapB = 1/11/10**9*999/1000
 tau = delays_berekenen()
 
 x_coordinaat = []
@@ -119,6 +138,7 @@ y_juist = y_waarden()
 
 
 plt.scatter(x_coordinaat, y_coordinaat)
+plt.plot(x_coordinaat, y_coordinaat)
 plt.scatter(x_juist, y_juist)
 
 
