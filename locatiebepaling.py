@@ -50,7 +50,7 @@ def delays_berekenen():
 
 def calculate_location(tau0, tau1, v):
     y = ((tau1**2-tau0**2)*v**2)/4
-    x = ((tau0*v)**2-(y-1)**2)
+    x = (tau0*v)**2-(y-1)**2
     return x,y
 
 
@@ -89,9 +89,9 @@ def y_waarden():
 #Main
 venster = 1
 
-dataset = 1
+dataset = 2
 
-if (dataset == 2):
+if (dataset == 1):
     data = data_1_verwerken('Dataset_1.mat')
     stap = 1/10/(10**6)/200
     offset = -100
@@ -112,7 +112,7 @@ y_coordinaat = []
 # coordinaten bepalen van elk punt
 for i in range(0,PUNTEN):
     coord = calculate_location(tau[i][0],tau[i][1], cst.speed_of_light)
-    #print('Punt',i,':',coord)
+    print('Punt',i,':',coord)
     x_coordinaat.append(coord[0])
     y_coordinaat.append(coord[1])
 
@@ -126,4 +126,4 @@ plt.scatter(x_juist, y_juist)
 
 plt.show()
 
-#fout_berekenen()
+fout_berekenen()
