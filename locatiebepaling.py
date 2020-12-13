@@ -47,6 +47,7 @@ def delays_berekenen():
         delays[PUNT] = APDP2delays(APDP)
     return delays
 
+<<<<<<< HEAD
 #def calculate_location(tau0, tau1):
 #    y = ((tau1**2-tau0**2)*cst.speed_of_light**2)/4
 #    x = ((tau0*cst.speed_of_light)**2-(y-1)**2)
@@ -60,6 +61,12 @@ def calculate_location(tau0, tau1):
     x = np.sqrt(-(a)**4 + 2 * a**2 * b**2 + 8*a**2 - b**4 + 8*b**2 - 16)/4
     return x, y
 
+=======
+def calculate_location(tau0, tau1, v):
+    y = ((tau1**2-tau0**2)*v**2)/4
+    x = (tau0*v)**2-(y-1)**2
+    return x,y
+>>>>>>> 30260978ff6ac114c1efcf80f7a05cf6daee9488
 
 
 def fout_berekenen():
@@ -98,7 +105,7 @@ def y_waarden():
 #Main
 venster = 1
 
-dataset = 1
+dataset = 2
 
 if (dataset == 1):
     data = data_1_verwerken('Dataset_1.mat')
@@ -119,7 +126,11 @@ x_coordinaat = []
 y_coordinaat = []
 
 for i in range(0,PUNTEN):
+<<<<<<< HEAD
     coord = calculate_location(tau[i][0],tau[i][1])
+=======
+    coord = calculate_location(tau[i][0],tau[i][1], cst.speed_of_light)
+>>>>>>> 30260978ff6ac114c1efcf80f7a05cf6daee9488
     print('Punt',i,':',coord)
     x_coordinaat.append(coord[0])
     y_coordinaat.append(coord[1])
@@ -159,3 +170,8 @@ plt.scatter(x_juist, y_juist)
 plt.plot(x_juist, y_juist)
 
 plt.show()
+<<<<<<< HEAD
+=======
+
+fout_berekenen()
+>>>>>>> 30260978ff6ac114c1efcf80f7a05cf6daee9488
